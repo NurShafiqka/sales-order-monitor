@@ -1,6 +1,6 @@
 const STYLES: Record<string, string> = {
   "Open order": "bg-amber-50 text-amber-700 ring-amber-200",
-  Invoiced: "bg-brand-50 text-brand-700 ring-brand-200",
+  Invoiced: "bg-sky-50 text-sky-700 ring-sky-200",
   Delivered: "bg-emerald-50 text-emerald-700 ring-emerald-200",
   Cancelled: "bg-rose-50 text-rose-700 ring-rose-200",
 };

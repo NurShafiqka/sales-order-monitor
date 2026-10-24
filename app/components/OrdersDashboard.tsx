@@ -79,7 +79,11 @@ export function OrdersDashboard() {
   return (
     <div className="space-y-6">
       <section aria-label="Order summary">
-        <SummaryCards summary={result?.summary} />
+        <SummaryCards
+          summary={result?.summary}
+          activeStatus={status}
+          onSelectStatus={(value) => updateParams({ status: value || null })}
+        />
       </section>
 
       <section aria-label="Orders" className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-brand-100">
