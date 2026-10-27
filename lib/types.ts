@@ -18,6 +18,18 @@ export interface SalesOrder {
   SalesDistrictDescription: string;
   DocumentStatus: string;
   SalesType: string;
+  // Extra fields shown in the order detail panel.
+  DOT_ItemGroupId: string;
+  SalesGroup: string;
+  DOT_ValidationStatus: string;
+  ModifiedDateTime1: string;
+  ReleaseStatus: string;
+  MCROrderStopped: string;
+  PurchOrderFormNum: string;
+  DOT_SONotes: string | null;
+  DOT_SFANotes: string | null;
+  HAR_SalesDeliveryDistrictId: string;
+  HAR_DeliveryDistrictDescription: string;
 }
 
 export interface OrdersSummary {

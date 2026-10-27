@@ -54,7 +54,7 @@ export function Filters(props: FiltersProps) {
         <option value="">All branches</option>
         {props.sites.map((s) => (
           <option key={s.value} value={s.value}>
-            {s.value} ({s.count})
+            {s.value}
           </option>
         ))}
       </select>
@@ -68,7 +68,7 @@ export function Filters(props: FiltersProps) {
         <option value="">All statuses</option>
         {props.statuses.map((s) => (
           <option key={s.value} value={s.value}>
-            {s.value} ({s.count})
+            {s.value}
           </option>
         ))}
       </select>

@@ -6,6 +6,7 @@ import { formatNumber } from "@/lib/format";
 import type { MetaResponse, OrdersResponse } from "@/lib/types";
 import { useFetchJson } from "@/lib/useFetchJson";
 import { Filters } from "./Filters";
+import { OrderDetail } from "./OrderDetail";
 import { OrdersTable, SORT_FIELDS, type SortField } from "./OrdersTable";
 import { SummaryCards } from "./SummaryCards";
 
@@ -23,8 +24,11 @@ export function OrdersDashboard() {
   const status = searchParams.get("status") ?? "";
   const page = Math.max(1, Number(searchParams.get("page")) || 1);
   const sortParam = searchParams.get("sort") as SortField;
-  const sort: SortField = SORT_FIELDS.includes(sortParam) ? sortParam : "CreatedDateTime1";
-  const order = searchParams.get("order") === "asc" ? "asc" : "desc";
+  // Default: order number ascending (SO-MOCK-00001 first).
+  const sort: SortField = SORT_FIELDS.includes(sortParam) ? sortParam : "SalesId";
+  const order = searchParams.get("order") === "desc" ? "desc" : "asc";
+  // Order open in the detail panel (?id=SO-MOCK-00001); "order" is taken by sort direction.
+  const selectedId = searchParams.get("id") ?? "";
 
   const [query, setQuery] = useState(q);
   const [reloadKey, setReloadKey] = useState(0);
@@ -148,7 +152,9 @@ export function OrdersDashboard() {
               sort={sort}
               order={order}
               pageSize={PAGE_SIZE}
+              selectedId={selectedId}
               onSort={handleSort}
+              onSelect={(id) => updateParams({ id }, false)}
             />
             {result && (
               <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3 text-sm text-slate-500">
@@ -181,6 +187,8 @@ export function OrdersDashboard() {
           </>
         )}
       </section>
+
+      {selectedId && <OrderDetail salesId={selectedId} onClose={() => updateParams({ id: null }, false)} />}
     </div>
   );
 }

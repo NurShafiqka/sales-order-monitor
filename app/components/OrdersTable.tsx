@@ -34,10 +34,12 @@ interface OrdersTableProps {
   sort: SortField;
   order: "asc" | "desc";
   pageSize: number;
+  selectedId?: string;
   onSort: (field: SortField) => void;
+  onSelect: (salesId: string) => void;
 }
 
-export function OrdersTable({ orders, loading, sort, order, pageSize, onSort }: OrdersTableProps) {
+export function OrdersTable({ orders, loading, sort, order, pageSize, selectedId, onSort, onSelect }: OrdersTableProps) {
   return (
     <table className="w-full text-left text-sm">
       <thead className="border-b border-slate-200 bg-brand-50/60 text-xs uppercase tracking-wide text-slate-500">
@@ -77,9 +79,23 @@ export function OrdersTable({ orders, loading, sort, order, pageSize, onSort }: 
       >
         {orders
           ? orders.map((o) => (
-              <tr key={o.SalesId} className="hover:bg-brand-50/50">
+              <tr
+                key={o.SalesId}
+                onClick={() => onSelect(o.SalesId)}
+                className={`cursor-pointer ${o.SalesId === selectedId ? "bg-brand-50" : "hover:bg-brand-50/50"}`}
+              >
                 <td className="whitespace-nowrap px-5 py-3 font-mono text-[13px] font-medium text-brand-700">
-                  {o.SalesId}
+                  {/* Real button so the row can be opened with the keyboard too */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelect(o.SalesId);
+                    }}
+                    className="rounded hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  >
+                    {o.SalesId}
+                  </button>
                 </td>
                 <td className="px-5 py-3">
                   <div className="font-medium text-slate-800">{o.SalesName}</div>
