@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
       <header className="bg-brand-800 text-white">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-8 py-4">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-8">
           <div className="grid size-9 place-items-center rounded-lg bg-white text-sm font-bold text-brand-800">SO</div>
           <div>
             <h1 className="text-lg font-semibold leading-tight">Sales Order Monitor</h1>
@@ -14,7 +14,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-8 py-8">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-5 sm:px-8 sm:py-8">
         {/* useSearchParams in the dashboard needs a Suspense boundary for prerendering. */}
         <Suspense>
           <OrdersDashboard />

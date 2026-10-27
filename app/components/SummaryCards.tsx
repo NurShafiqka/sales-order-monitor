@@ -11,10 +11,18 @@ interface SummaryCardsProps {
   onSelectStatus: (status: string) => void;
 }
 
-// Columns: Total | Open | Completed (spans 2) | Cancelled | Total value (wider so RM fits).
-const GRID = "grid grid-cols-[repeat(5,minmax(0,1fr))_minmax(0,1.4fr)] gap-4";
+// Desktop (lg): Total | Open | Completed (spans 2) | Cancelled | Total value (wider so RM fits).
+// Mobile: 2 columns, reordered to Total (full) / Open + Cancelled / Completed (full) / Total value (full).
+const GRID = "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-[repeat(5,minmax(0,1fr))_minmax(0,1.4fr)]";
+const MOBILE_ORDER = {
+  total: "max-lg:order-1 max-lg:col-span-2",
+  open: "max-lg:order-2",
+  cancelled: "max-lg:order-3",
+  completed: "max-lg:order-4",
+  value: "max-lg:order-5 max-lg:col-span-2",
+};
 
-const cardBase = "relative overflow-hidden rounded-xl bg-white p-5 text-left shadow-sm transition duration-150";
+const cardBase = "relative overflow-hidden rounded-xl bg-white p-4 text-left shadow-sm transition duration-150 sm:p-5";
 const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500";
 
 function Accent({ className }: { className: string }) {
@@ -25,12 +33,11 @@ export function SummaryCards({ summary, activeStatus, onSelectStatus }: SummaryC
   if (!summary) {
     return (
       <div className={GRID}>
-        {[1, 1, 2, 1, 1].map((span, i) => (
-          <div
-            key={i}
-            className={`h-[124px] animate-pulse rounded-xl bg-white shadow-sm ring-1 ring-brand-100 ${span === 2 ? "col-span-2" : ""}`}
-          />
-        ))}
+        {[MOBILE_ORDER.total, MOBILE_ORDER.open, `${MOBILE_ORDER.completed} col-span-2`, MOBILE_ORDER.cancelled, MOBILE_ORDER.value].map(
+          (layout, i) => (
+            <div key={i} className={`h-[116px] animate-pulse rounded-xl bg-white shadow-sm ring-1 ring-brand-100 sm:h-[124px] ${layout}`} />
+          ),
+        )}
       </div>
     );
   }
@@ -54,6 +61,7 @@ export function SummaryCards({ summary, activeStatus, onSelectStatus }: SummaryC
         active={activeStatus === ""}
         title="Show all orders"
         onClick={() => onSelectStatus("")}
+        className={MOBILE_ORDER.total}
       />
 
       <StatusCard
@@ -63,12 +71,13 @@ export function SummaryCards({ summary, activeStatus, onSelectStatus }: SummaryC
         accent="bg-amber-500"
         active={activeStatus === "Open order"}
         onClick={() => toggle("Open order")}
+        className={MOBILE_ORDER.open}
       />
 
       {/* Completed = Invoiced + Delivered. The API filters one status at a time,
           so each half filters on its own; the card itself is not a button. */}
       <div
-        className={`${cardBase} col-span-2 py-4 ${completedActive ? "ring-2 ring-brand-600" : "ring-1 ring-brand-100"}`}
+        className={`${cardBase} col-span-2 py-4 ${MOBILE_ORDER.completed} ${completedActive ? "ring-2 ring-brand-600" : "ring-1 ring-brand-100"}`}
       >
         <Accent className="bg-emerald-500" />
         <div className="flex items-baseline justify-between">
@@ -87,7 +96,7 @@ export function SummaryCards({ summary, activeStatus, onSelectStatus }: SummaryC
                 onClick={() => toggle(part.status)}
                 aria-pressed={active}
                 title={active ? "Click to show all statuses" : `Show ${part.status.toLowerCase()} orders`}
-                className={`cursor-pointer rounded-lg px-3 py-2 text-left transition ${focusRing} ${
+                className={`cursor-pointer rounded-lg px-3 py-2 text-left transition active:scale-[0.98] ${focusRing} ${
                   active
                     ? "bg-brand-50 ring-2 ring-brand-600"
                     : "bg-slate-50 ring-1 ring-slate-100 hover:bg-white hover:shadow-sm hover:ring-brand-300"
@@ -114,10 +123,11 @@ export function SummaryCards({ summary, activeStatus, onSelectStatus }: SummaryC
         accent="bg-rose-500"
         active={activeStatus === "Cancelled"}
         onClick={() => toggle("Cancelled")}
+        className={MOBILE_ORDER.cancelled}
       />
 
       {/* Total order value: informational only, not a filter */}
-      <div className={`${cardBase} ring-1 ring-brand-100`}>
+      <div className={`${cardBase} ring-1 ring-brand-100 ${MOBILE_ORDER.value}`}>
         <Accent className="bg-brand-900" />
         <p className="text-sm font-medium text-slate-500">Total order value</p>
         <p className="mt-2 text-2xl font-semibold tracking-tight text-brand-900">
@@ -137,16 +147,17 @@ interface StatusCardProps {
   active: boolean;
   title?: string;
   onClick: () => void;
+  className?: string;
 }
 
-function StatusCard({ label, value, note, accent, active, title, onClick }: StatusCardProps) {
+function StatusCard({ label, value, note, accent, active, title, onClick, className = "" }: StatusCardProps) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
       title={title ?? (active ? "Click to show all statuses" : `Show ${label.toLowerCase()} orders`)}
-      className={`${cardBase} cursor-pointer hover:-translate-y-0.5 hover:shadow-md ${focusRing} ${
+      className={`${cardBase} ${className} cursor-pointer hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] ${focusRing} ${
         active ? "bg-brand-50/60 ring-2 ring-brand-600" : "ring-1 ring-brand-100 hover:ring-brand-300"
       }`}
     >

@@ -39,9 +39,90 @@ interface OrdersTableProps {
   onSelect: (salesId: string) => void;
 }
 
-export function OrdersTable({ orders, loading, sort, order, pageSize, selectedId, onSort, onSelect }: OrdersTableProps) {
+export function OrdersTable(props: OrdersTableProps) {
   return (
-    <table className="w-full text-left text-sm">
+    <>
+      <MobileOrderList {...props} />
+      <DesktopTable {...props} />
+    </>
+  );
+}
+
+// Below lg: a list of tappable cards, with a sort dropdown in place of column headers.
+function MobileOrderList({ orders, loading, sort, order, pageSize, selectedId, onSort, onSelect }: OrdersTableProps) {
+  const sortable = COLUMNS.filter((c) => c.sortField);
+
+  return (
+    <div className="lg:hidden">
+      <div className="flex items-center gap-2 border-b border-slate-100 bg-brand-50/60 px-4 py-2.5">
+        <label htmlFor="mobile-sort" className="text-xs font-medium uppercase tracking-wide text-slate-500">
+          Sort by
+        </label>
+        <select
+          id="mobile-sort"
+          value={sort}
+          onChange={(e) => onSort(e.target.value as SortField)}
+          className="h-9 flex-1 rounded-lg border border-slate-200 bg-white px-2 text-base text-slate-700 outline-none focus:border-brand-500"
+        >
+          {sortable.map((c) => (
+            <option key={c.sortField} value={c.sortField}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+        {/* Same column again = flip direction */}
+        <button
+          type="button"
+          onClick={() => onSort(sort)}
+          aria-label={order === "asc" ? "Sorted ascending, tap for descending" : "Sorted descending, tap for ascending"}
+          className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white text-brand-700 active:bg-brand-100"
+        >
+          {order === "asc" ? "▲" : "▼"}
+        </button>
+      </div>
+
+      <ul className={`divide-y divide-slate-100 transition-opacity ${loading && orders ? "opacity-50" : ""}`} aria-busy={loading}>
+        {orders
+          ? orders.map((o) => (
+              <li key={o.SalesId}>
+                <button
+                  type="button"
+                  onClick={() => onSelect(o.SalesId)}
+                  className={`block w-full px-4 py-3.5 text-left transition-colors active:bg-brand-100 ${
+                    o.SalesId === selectedId ? "bg-brand-50" : ""
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-mono text-[13px] font-medium text-brand-700">{o.SalesId}</span>
+                    <StatusBadge status={o.SalesStatus} />
+                  </div>
+                  <div className="mt-1 truncate font-medium text-slate-800">{o.SalesName}</div>
+                  <div className="mt-1 flex items-center justify-between gap-3 text-xs text-slate-500">
+                    <span className="truncate">
+                      {o.InventSiteId} · {formatDate(o.CreatedDateTime1)}
+                    </span>
+                    <span className="shrink-0 text-sm font-semibold tabular-nums text-slate-800">
+                      {formatCurrency(o.HAR_TotalSOAmount)}
+                    </span>
+                  </div>
+                </button>
+              </li>
+            ))
+          : Array.from({ length: Math.min(pageSize, 6) }, (_, i) => (
+              <li key={i} className="space-y-2 px-4 py-4">
+                <div className="h-4 w-2/5 animate-pulse rounded bg-slate-100" />
+                <div className="h-4 w-3/4 animate-pulse rounded bg-slate-100" />
+                <div className="h-3 w-1/2 animate-pulse rounded bg-slate-100" />
+              </li>
+            ))}
+      </ul>
+    </div>
+  );
+}
+
+function DesktopTable({ orders, loading, sort, order, pageSize, selectedId, onSort, onSelect }: OrdersTableProps) {
+  return (
+    <table className="hidden w-full text-left text-sm lg:table">
       <thead className="border-b border-slate-200 bg-brand-50/60 text-xs uppercase tracking-wide text-slate-500">
         <tr>
           {COLUMNS.map((col) => {

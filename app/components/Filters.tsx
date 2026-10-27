@@ -14,14 +14,17 @@ interface FiltersProps {
   onClear: () => void;
 }
 
+// text-base on mobile stops iOS Safari zooming in when a field is focused.
 const selectClass =
-  "h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
+  "h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-base text-slate-700 shadow-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 lg:h-10 lg:w-44 lg:text-sm";
 
 export function Filters(props: FiltersProps) {
   const hasFilters = Boolean(props.query || props.site || props.status);
 
+  // Mobile: search on its own row, then branch + status side by side, then Clear.
+  // Desktop (lg): everything on one row.
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
       <div className="relative flex-1">
         <svg
           className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
@@ -41,43 +44,45 @@ export function Filters(props: FiltersProps) {
           onChange={(e) => props.onQueryChange(e.target.value)}
           placeholder="Search order no., customer, account, PO ref or sales taker…"
           aria-label="Search orders"
-          className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm shadow-sm outline-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+          className="h-11 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-base shadow-sm outline-none placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 lg:h-10 lg:text-sm"
         />
       </div>
 
-      <select
-        value={props.site}
-        onChange={(e) => props.onSiteChange(e.target.value)}
-        aria-label="Filter by branch"
-        className={`${selectClass} w-44`}
-      >
-        <option value="">All branches</option>
-        {props.sites.map((s) => (
-          <option key={s.value} value={s.value}>
-            {s.value}
-          </option>
-        ))}
-      </select>
+      <div className="grid grid-cols-2 gap-3 lg:flex">
+        <select
+          value={props.site}
+          onChange={(e) => props.onSiteChange(e.target.value)}
+          aria-label="Filter by branch"
+          className={selectClass}
+        >
+          <option value="">All branches</option>
+          {props.sites.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.value}
+            </option>
+          ))}
+        </select>
 
-      <select
-        value={props.status}
-        onChange={(e) => props.onStatusChange(e.target.value)}
-        aria-label="Filter by status"
-        className={`${selectClass} w-44`}
-      >
-        <option value="">All statuses</option>
-        {props.statuses.map((s) => (
-          <option key={s.value} value={s.value}>
-            {s.value}
-          </option>
-        ))}
-      </select>
+        <select
+          value={props.status}
+          onChange={(e) => props.onStatusChange(e.target.value)}
+          aria-label="Filter by status"
+          className={selectClass}
+        >
+          <option value="">All statuses</option>
+          {props.statuses.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.value}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <button
         type="button"
         onClick={props.onClear}
         disabled={!hasFilters}
-        className="h-10 rounded-lg px-3 text-sm font-medium text-brand-600 hover:bg-brand-50 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent"
+        className="h-10 self-end rounded-lg px-3 text-sm font-medium text-brand-600 hover:bg-brand-50 active:bg-brand-100 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent lg:self-auto"
       >
         Clear filters
       </button>

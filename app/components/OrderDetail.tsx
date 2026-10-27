@@ -27,44 +27,53 @@ export function OrderDetail({ salesId, onClose }: OrderDetailProps) {
   useEffect(() => {
     closeRef.current?.focus();
     window.addEventListener("keydown", onEscape);
-    return () => window.removeEventListener("keydown", onEscape);
+    // Stop the page behind from scrolling while the popup is open (matters most on phones).
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onEscape);
+      document.body.style.overflow = previousOverflow;
+    };
   }, []);
 
   // The hook keeps the previous order while loading the next one; don't show it.
   const order = !loading && data?.SalesId.toLowerCase() === salesId.toLowerCase() ? data : undefined;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-8">
+    // Mobile: bottom sheet that fills most of the screen. sm and up: centered popup.
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-8">
       <div className="absolute inset-0 bg-brand-900/40 backdrop-blur-[2px]" onClick={onClose} aria-hidden="true" />
 
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="order-detail-title"
-        className="relative flex max-h-[88vh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+        className="relative flex max-h-[92dvh] w-full max-w-7xl flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-h-[88vh] sm:rounded-2xl"
       >
-        <header className="flex items-start justify-between gap-4 bg-brand-800 px-6 py-5 text-white">
-          <div>
+        <header className="relative flex items-start justify-between gap-4 bg-brand-800 px-4 pb-4 pt-5 text-white sm:px-6 sm:py-5">
+          {/* Grab handle, so the sheet reads as a sheet on phones */}
+          <span className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-white/30 sm:hidden" aria-hidden="true" />
+          <div className="min-w-0">
             <p className="text-xs uppercase tracking-wider text-brand-200">Sales order</p>
             <h2 id="order-detail-title" className="mt-0.5 font-mono text-xl font-semibold">
               {salesId}
             </h2>
-            {order && <p className="mt-1 text-sm text-brand-100">{order.SalesName}</p>}
+            {order && <p className="mt-1 truncate text-sm text-brand-100">{order.SalesName}</p>}
           </div>
           <button
             ref={closeRef}
             type="button"
             onClick={onClose}
             aria-label="Close order details"
-            className="rounded-lg p-1.5 text-brand-100 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            className="shrink-0 rounded-lg p-2 text-brand-100 hover:bg-white/10 hover:text-white active:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:p-1.5"
           >
-            <svg viewBox="0 0 20 20" fill="currentColor" className="size-5" aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="currentColor" className="size-6 sm:size-5" aria-hidden="true">
               <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
             </svg>
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto bg-slate-50/60 px-6 py-5">
+        <div className="flex-1 overflow-y-auto overscroll-contain bg-slate-50/60 px-4 py-4 sm:px-6 sm:py-5">
           {error ? (
             <div role="alert" className="flex flex-col items-center gap-3 py-16 text-center">
               <p className="font-medium text-slate-800">
@@ -109,17 +118,14 @@ function OrderBody({ order }: { order: SalesOrder }) {
 
       {/* Amounts */}
       <section className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-brand-100">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
           <Amount label="Order total" value={order.HAR_TotalSOAmount} strong />
           <Amount label="Invoiced" value={order.HAR_InvoicedAmount} />
           <Amount label="Balance" value={order.HAR_BalanceAmount} />
         </div>
-        <div className="mt-3 border-t border-slate-100 pt-3">
-          {/* Amount billed so far, not payment: the API has no payment data. */}
-        </div>
       </section>
 
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
         <Section title="Order">
           <Field label="Document status">{order.DocumentStatus}</Field>
           <Field label="Validation">{order.DOT_ValidationStatus}</Field>
@@ -131,7 +137,7 @@ function OrderBody({ order }: { order: SalesOrder }) {
           <Field label="Sales taker">{order.SalesTaker}</Field>
         </Section>
 
-        <div className="space-y-5">
+        <div className="space-y-4 md:space-y-5">
           <Section title="Customer">
             <Field label="Name">{order.SalesName}</Field>
             <Field label="Account">{order.CustAccount}</Field>
@@ -168,7 +174,9 @@ function Amount({ label, value, strong }: { label: string; value: number; strong
   return (
     <div>
       <p className="text-xs text-slate-500">{label}</p>
-      <p className={`mt-0.5 tabular-nums text-brand-900 ${strong ? "text-lg font-semibold" : "font-medium"}`}>
+      <p
+        className={`mt-0.5 tabular-nums text-brand-900 ${strong ? "text-base font-semibold sm:text-lg" : "text-sm font-medium sm:text-base"}`}
+      >
         {formatCurrency(value)}
       </p>
     </div>
@@ -191,7 +199,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 function Field({ label, children }: { label: string; children: ReactNode }) {
   const empty = children === null || children === undefined || children === "";
   return (
-    <div className="grid grid-cols-[120px_1fr] items-baseline gap-3 px-4 py-2">
+    <div className="grid grid-cols-[110px_1fr] items-baseline gap-3 px-4 py-2.5 sm:grid-cols-[120px_1fr] sm:py-2">
       <dt className="text-xs font-medium text-slate-500">{label}:</dt>
       <dd className={`text-sm ${empty ? "text-slate-300" : "font-semibold text-slate-900"}`}>{empty ? "—" : children}</dd>
     </div>
@@ -203,7 +211,7 @@ function DetailSkeleton() {
     <div className="space-y-5" aria-busy="true" aria-label="Loading order">
       <div className="h-6 w-48 animate-pulse rounded bg-slate-200/70" />
       <div className="h-28 animate-pulse rounded-xl bg-white ring-1 ring-brand-100" />
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
         {Array.from({ length: 4 }, (_, i) => (
           <div key={i} className="h-44 animate-pulse rounded-xl bg-white ring-1 ring-brand-100" />
         ))}
