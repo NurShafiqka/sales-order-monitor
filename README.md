@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sales Order Monitor
 
-## Getting Started
+A web app for monitoring sales orders across branches. It has a dashboard, a searchable order list and order details, using live data from the mock API.
 
-First, run the development server:
+**Live app:** https://sales-order-monitor.vercel.app/
+
+## How to run
+
+Requires Node.js 22+.
+
+1. Clone the repository and install the dependencies:
+
+   ```bash
+   git clone https://github.com/NurShafiqka/sales-order-monitor.git
+   cd sales-order-monitor
+   npm install
+   ```
+
+2. Create a `.env.local` file in the project root:
+
+   ```bash
+   API_BASE_URL=https://hiring.harrisons.my/api/mock/sales-orders
+   API_KEY=hssb-assessment-mock-2026
+   ```
+
+3. Start the app, then open http://localhost:3000:
+
+   ```bash
+   npm run dev
+   ```
+
+## Other commands
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm test         # run the tests
+npm run build    # production build
+npm start        # run the production build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## AI use
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+I used **Claude** as a pair-programming assistant. It helped me write the TypeScript code and the Vitest tests from my instructions, and I reviewed each change before comitting.
